@@ -151,6 +151,24 @@ export default function Home() {
         <p className="text-center text-xs text-gray-600 mt-6">
           手数料設定は自動的にブラウザに保存されます
         </p>
+
+        <div className="mt-6 text-center">
+          <a
+            href="https://twitter.com/intent/tweet?text=eBay輸出の利益計算に便利なツールを見つけた！%20by%20@Tokinomi%20%F0%9F%91%87&url=https%3A%2F%2Febay-calc-app.vercel.app%2F"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-black text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-800 transition-colors"
+          >
+            <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
+            Share on X
+          </a>
+        </div>
+
+        <p className="text-center text-xs text-gray-600 mt-4 px-4">
+          This tool is for estimation purposes only. Please check official eBay fees.
+        </p>
       </div>
     </main>
   );

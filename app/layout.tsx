@@ -10,6 +10,15 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "eBay輸出 利益計算",
   description: "eBay輸出利益をリアルタイムで計算するアプリ",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "eBay計算",
+  },
+  icons: {
+    apple: "/icon-192.png",
+  },
 };
 
 export const viewport: Viewport = {
