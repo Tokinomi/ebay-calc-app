@@ -41,3 +41,8 @@ export interface CalcResult {
   netProfit: number;
   profitMargin: number;
 }
+
+export interface ReverseCalcResult {
+  requiredItemPriceForeign: number; // gross selling price in foreign currency
+  result: CalcResult;
+}

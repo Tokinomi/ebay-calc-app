@@ -1,4 +1,4 @@
-import { CalcInputs, CalcResult, FeeSettings } from "../types";
+import { CalcInputs, CalcResult, FeeSettings, ReverseCalcResult } from "../types";
 
 export function calculate(
   inputs: CalcInputs,
@@ -58,6 +58,51 @@ export function calculate(
     netProfit,
     profitMargin,
   };
+}
+
+// Reverse calculation: given a target profit, find the required selling item price.
+// Derivation (auto duty mode):
+//   netProfit = x*(1 - dutyRate - feeRate) + s*(1 - feeRate) - fixedCosts
+//   x = (targetProfit + fixedCosts - s*(1-feeRate)) / (1 - dutyRate - feeRate)
+// where x = (sellingItemPrice - discount) * exchangeRate
+export function reverseCalculate(
+  inputs: CalcInputs,
+  fees: FeeSettings,
+  targetProfitJPY: number,
+  exchangeRate: number,
+  usdRate: number
+): ReverseCalcResult | null {
+  if (!exchangeRate) return null;
+
+  const s = inputs.sellingShippingPrice * exchangeRate;
+  const feeRate = (fees.ebayFee + fees.payoneerFee) / 100;
+  const fixedCosts =
+    inputs.purchasePrice +
+    fees.outsourcingFee +
+    inputs.purchasePrice * (fees.miscExpenseRate / 100) +
+    inputs.shippingCost;
+
+  let x: number;
+  if (fees.customsDutyManual) {
+    const manualDuty = fees.customsDutyAmount * usdRate;
+    const denom = 1 - feeRate;
+    if (denom <= 0) return null;
+    x = (targetProfitJPY + fixedCosts + manualDuty - s * (1 - feeRate)) / denom;
+  } else {
+    const dutyRate = fees.customsDutyRate / 100;
+    const denom = 1 - dutyRate - feeRate;
+    if (denom <= 0) return null;
+    x = (targetProfitJPY + fixedCosts - s * (1 - feeRate)) / denom;
+  }
+
+  const requiredItemPriceForeign = x / exchangeRate + inputs.discount;
+  const result = calculate(
+    { ...inputs, sellingItemPrice: requiredItemPriceForeign },
+    fees,
+    exchangeRate,
+    usdRate
+  );
+  return result ? { requiredItemPriceForeign, result } : null;
 }
 
 export const DEFAULT_FEES: FeeSettings = {

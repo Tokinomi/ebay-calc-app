@@ -5,8 +5,11 @@ import { CalcInputs, FeeSettings } from "../types";
 interface Props {
   inputs: CalcInputs;
   fees: FeeSettings;
+  mode: "standard" | "reverse";
+  targetProfit: number;
   onInputChange: (key: keyof CalcInputs, value: number | string) => void;
   onFeeChange: (key: keyof FeeSettings, value: number | boolean) => void;
+  onTargetProfitChange: (v: number) => void;
 }
 
 interface NumberInputProps {
@@ -70,8 +73,11 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 export default function InputSection({
   inputs,
   fees,
+  mode,
+  targetProfit,
   onInputChange,
   onFeeChange,
+  onTargetProfitChange,
 }: Props) {
   const currencySymbol = CURRENCY_SYMBOLS[inputs.currency] ?? inputs.currency;
 
@@ -89,13 +95,22 @@ export default function InputSection({
             onChange={(v) => onInputChange("purchasePrice", v)}
             prefix="¥"
           />
-          <NumberInput
-            label={`販売価格 商品代（${inputs.currency}）`}
-            value={inputs.sellingItemPrice}
-            onChange={(v) => onInputChange("sellingItemPrice", v)}
-            prefix={currencySymbol}
-            step={0.01}
-          />
+          {mode === "standard" ? (
+            <NumberInput
+              label={`販売価格 商品代（${inputs.currency}）`}
+              value={inputs.sellingItemPrice}
+              onChange={(v) => onInputChange("sellingItemPrice", v)}
+              prefix={currencySymbol}
+              step={0.01}
+            />
+          ) : (
+            <NumberInput
+              label="目標利益"
+              value={targetProfit}
+              onChange={onTargetProfitChange}
+              prefix="¥"
+            />
+          )}
           <NumberInput
             label={`販売価格 送料（${inputs.currency}）`}
             value={inputs.sellingShippingPrice}

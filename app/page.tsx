@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import ExchangeRates from "./components/ExchangeRates";
 import InputSection from "./components/InputSection";
 import ResultSection from "./components/ResultSection";
-import { ExchangeRates as ExchangeRatesType, CalcInputs, FeeSettings, CalcResult } from "./types";
-import { calculate, DEFAULT_FEES } from "./lib/calculate";
+import { ExchangeRates as ExchangeRatesType, CalcInputs, FeeSettings, CalcResult, ReverseCalcResult } from "./types";
+import { calculate, reverseCalculate, DEFAULT_FEES } from "./lib/calculate";
 
 const STORAGE_KEY = "ebay-calc-fees";
 
@@ -22,7 +22,10 @@ function loadSavedFees(): FeeSettings {
   return DEFAULT_FEES;
 }
 
+type Mode = "standard" | "reverse";
+
 export default function Home() {
+  const [mode, setMode] = useState<Mode>("standard");
   const [rates, setRates] = useState<ExchangeRatesType | null>(null);
   const [ratesLoading, setRatesLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -38,7 +41,9 @@ export default function Home() {
   });
 
   const [fees, setFees] = useState<FeeSettings>(DEFAULT_FEES);
+  const [targetProfit, setTargetProfit] = useState<number>(0);
   const [result, setResult] = useState<CalcResult | null>(null);
+  const [reverseResult, setReverseResult] = useState<ReverseCalcResult | null>(null);
 
   useEffect(() => {
     setFees(loadSavedFees());
@@ -78,9 +83,14 @@ export default function Home() {
     if (!rates) return;
     const exchangeRate = rates[inputs.currency];
     const usdRate = rates["USD"] ?? 150;
-    const calc = calculate(inputs, fees, exchangeRate, usdRate);
-    setResult(calc);
-  }, [inputs, fees, rates]);
+    if (mode === "standard") {
+      setResult(calculate(inputs, fees, exchangeRate, usdRate));
+      setReverseResult(null);
+    } else {
+      setReverseResult(reverseCalculate(inputs, fees, targetProfit, exchangeRate, usdRate));
+      setResult(null);
+    }
+  }, [inputs, fees, rates, mode, targetProfit]);
 
   const handleInputChange = useCallback(
     (key: keyof CalcInputs, value: number | string) => {
@@ -124,6 +134,26 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Tab Switcher */}
+        <div className="flex bg-gray-800 rounded-xl p-1 mb-4">
+          <button
+            onClick={() => setMode("standard")}
+            className={`flex-1 text-sm font-medium py-2 rounded-lg transition-colors ${
+              mode === "standard" ? "bg-gray-600 text-white" : "text-gray-400"
+            }`}
+          >
+            通常計算
+          </button>
+          <button
+            onClick={() => setMode("reverse")}
+            className={`flex-1 text-sm font-medium py-2 rounded-lg transition-colors ${
+              mode === "reverse" ? "bg-blue-600 text-white" : "text-gray-400"
+            }`}
+          >
+            逆算（目標利益）
+          </button>
+        </div>
+
         <ExchangeRates
           rates={rates}
           selectedCurrency={inputs.currency}
@@ -135,6 +165,8 @@ export default function Home() {
         <div className="mb-4">
           <ResultSection
             result={result}
+            reverseResult={reverseResult}
+            mode={mode}
             currency={inputs.currency}
             sellingItemPrice={inputs.sellingItemPrice}
             sellingShippingPrice={inputs.sellingShippingPrice}
@@ -145,8 +177,11 @@ export default function Home() {
         <InputSection
           inputs={inputs}
           fees={fees}
+          mode={mode}
+          targetProfit={targetProfit}
           onInputChange={handleInputChange}
           onFeeChange={handleFeeChange}
+          onTargetProfitChange={setTargetProfit}
         />
 
         <p className="text-center text-xs text-gray-600 mt-6">
