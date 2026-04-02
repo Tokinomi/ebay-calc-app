@@ -162,6 +162,24 @@ export default function Home() {
           lastUpdated={lastUpdated}
         />
 
+        {mode === "reverse" && (
+          <div className="bg-gray-800 rounded-2xl p-4 mb-4">
+            <label className="text-xs text-gray-400">目標利益</label>
+            <div className="flex items-center bg-gray-700 rounded-xl overflow-hidden mt-1">
+              <span className="px-3 text-gray-400 text-sm border-r border-gray-600">¥</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                value={targetProfit === 0 ? "" : targetProfit}
+                placeholder="0"
+                min={0}
+                onChange={(e) => setTargetProfit(e.target.value === "" ? 0 : parseFloat(e.target.value))}
+                className="flex-1 bg-transparent px-3 py-3 text-white text-right text-base outline-none"
+              />
+            </div>
+          </div>
+        )}
+
         <div className="mb-4">
           <ResultSection
             result={result}

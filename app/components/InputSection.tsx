@@ -95,20 +95,13 @@ export default function InputSection({
             onChange={(v) => onInputChange("purchasePrice", v)}
             prefix="¥"
           />
-          {mode === "standard" ? (
+          {mode === "standard" && (
             <NumberInput
               label={`販売価格 商品代（${inputs.currency}）`}
               value={inputs.sellingItemPrice}
               onChange={(v) => onInputChange("sellingItemPrice", v)}
               prefix={currencySymbol}
               step={0.01}
-            />
-          ) : (
-            <NumberInput
-              label="目標利益"
-              value={targetProfit}
-              onChange={onTargetProfitChange}
-              prefix="¥"
             />
           )}
           <NumberInput
