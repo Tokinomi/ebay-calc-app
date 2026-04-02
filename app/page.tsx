@@ -5,6 +5,7 @@ import ExchangeRates from "./components/ExchangeRates";
 import InputSection from "./components/InputSection";
 import ResultSection from "./components/ResultSection";
 import HistorySection from "./components/HistorySection";
+import StatsSection from "./components/StatsSection";
 import { ExchangeRates as ExchangeRatesType, CalcInputs, FeeSettings, CalcResult, ReverseCalcResult, HistoryRecord, CATEGORIES, CategoryValue } from "./types";
 import { calculate, reverseCalculate, DEFAULT_FEES } from "./lib/calculate";
 
@@ -299,6 +300,7 @@ export default function Home() {
           </a>
         </div>
 
+        <StatsSection records={history} />
         <HistorySection records={history} onDelete={handleDeleteHistory} />
 
         <p className="text-center text-xs text-gray-600 mt-4 px-4">
