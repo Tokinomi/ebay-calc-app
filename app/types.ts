@@ -46,3 +46,14 @@ export interface ReverseCalcResult {
   requiredItemPriceForeign: number; // gross selling price in foreign currency
   result: CalcResult;
 }
+
+export interface HistoryRecord {
+  id: string;
+  timestamp: number;
+  memo: string;
+  mode: "standard" | "reverse";
+  currency: string;
+  sellingItemPrice: number;
+  targetProfit?: number;
+  result: CalcResult;
+}

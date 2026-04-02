@@ -4,10 +4,22 @@ import { useState, useEffect, useCallback } from "react";
 import ExchangeRates from "./components/ExchangeRates";
 import InputSection from "./components/InputSection";
 import ResultSection from "./components/ResultSection";
-import { ExchangeRates as ExchangeRatesType, CalcInputs, FeeSettings, CalcResult, ReverseCalcResult } from "./types";
+import HistorySection from "./components/HistorySection";
+import { ExchangeRates as ExchangeRatesType, CalcInputs, FeeSettings, CalcResult, ReverseCalcResult, HistoryRecord } from "./types";
 import { calculate, reverseCalculate, DEFAULT_FEES } from "./lib/calculate";
 
 const STORAGE_KEY = "ebay-calc-fees";
+const HISTORY_KEY = "ebay-calc-history";
+
+function loadHistory(): HistoryRecord[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const saved = localStorage.getItem(HISTORY_KEY);
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+}
 
 function loadSavedFees(): FeeSettings {
   if (typeof window === "undefined") return DEFAULT_FEES;
@@ -44,9 +56,12 @@ export default function Home() {
   const [targetProfit, setTargetProfit] = useState<number>(0);
   const [result, setResult] = useState<CalcResult | null>(null);
   const [reverseResult, setReverseResult] = useState<ReverseCalcResult | null>(null);
+  const [memo, setMemo] = useState("");
+  const [history, setHistory] = useState<HistoryRecord[]>([]);
 
   useEffect(() => {
     setFees(loadSavedFees());
+    setHistory(loadHistory());
   }, []);
 
   useEffect(() => {
@@ -116,6 +131,35 @@ export default function Home() {
 
   const handleCurrencyChange = useCallback((currency: string) => {
     setInputs((prev) => ({ ...prev, currency }));
+  }, []);
+
+  const handleSave = useCallback(() => {
+    const activeResult = mode === "standard" ? result : reverseResult?.result;
+    const activePrice = mode === "standard" ? inputs.sellingItemPrice : (reverseResult?.requiredItemPriceForeign ?? 0);
+    if (!activeResult) return;
+    const record: HistoryRecord = {
+      id: Date.now().toString(),
+      timestamp: Date.now(),
+      memo,
+      mode,
+      currency: inputs.currency,
+      sellingItemPrice: activePrice,
+      ...(mode === "reverse" ? { targetProfit } : {}),
+      result: activeResult,
+    };
+    setHistory((prev) => {
+      const next = [record, ...prev];
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  }, [mode, result, reverseResult, inputs, memo, targetProfit]);
+
+  const handleDeleteHistory = useCallback((id: string) => {
+    setHistory((prev) => {
+      const next = prev.filter((r) => r.id !== id);
+      try { localStorage.setItem(HISTORY_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
   }, []);
 
   const exchangeRate = rates ? rates[inputs.currency] : 0;
@@ -202,6 +246,25 @@ export default function Home() {
           onTargetProfitChange={setTargetProfit}
         />
 
+        {/* Save button */}
+        {(result || reverseResult) && (
+          <div className="mt-4 flex gap-2">
+            <input
+              type="text"
+              value={memo}
+              onChange={(e) => setMemo(e.target.value)}
+              placeholder="メモ（商品名など）"
+              className="flex-1 bg-gray-800 text-white text-sm px-3 py-2.5 rounded-xl outline-none placeholder-gray-600"
+            />
+            <button
+              onClick={handleSave}
+              className="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+            >
+              保存
+            </button>
+          </div>
+        )}
+
         <p className="text-center text-xs text-gray-600 mt-6">
           手数料設定は自動的にブラウザに保存されます
         </p>
@@ -219,6 +282,8 @@ export default function Home() {
             Share on X
           </a>
         </div>
+
+        <HistorySection records={history} onDelete={handleDeleteHistory} />
 
         <p className="text-center text-xs text-gray-600 mt-4 px-4">
           This tool is for estimation purposes only. Please check official eBay fees.
