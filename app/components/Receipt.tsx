@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef } from "react";
-import { HistoryRecord } from "../types";
+import { HistoryRecord, CATEGORIES } from "../types";
 
 interface Props {
   record: HistoryRecord | null;
@@ -18,7 +18,8 @@ function fmt(v: number) {
 const Receipt = forwardRef<HTMLDivElement, Props>(({ record }, ref) => {
   if (!record) return <div ref={ref} />;
 
-  const { result, currency, sellingItemPrice, mode, targetProfit, memo, timestamp } = record;
+  const { result, currency, sellingItemPrice, mode, targetProfit, memo, category, timestamp } = record;
+  const categoryLabel = CATEGORIES.find((c) => c.value === category)?.label ?? "その他";
   const sym = CURRENCY_SYMBOLS[currency] ?? currency;
   const profitColor = result.netProfit >= 0 ? "#34d399" : "#f87171";
   const marginColor =
@@ -46,9 +47,14 @@ const Receipt = forwardRef<HTMLDivElement, Props>(({ record }, ref) => {
           eBay輸出
         </div>
         <div style={{ fontSize: 18, fontWeight: 700, color: "#ffffff" }}>利益計算レポート</div>
-        {memo && (
-          <div style={{ fontSize: 13, color: "#9ca3af", marginTop: 6 }}>{memo}</div>
-        )}
+        <div style={{ marginTop: 8, display: "flex", justifyContent: "center", gap: 6, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 11, color: "#60a5fa", background: "rgba(96,165,250,0.1)", padding: "2px 10px", borderRadius: 999 }}>
+            {categoryLabel}
+          </span>
+          {memo && (
+            <span style={{ fontSize: 11, color: "#9ca3af" }}>{memo}</span>
+          )}
+        </div>
       </div>
 
       {/* Summary Cards */}

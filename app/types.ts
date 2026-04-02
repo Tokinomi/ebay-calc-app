@@ -47,10 +47,23 @@ export interface ReverseCalcResult {
   result: CalcResult;
 }
 
+export const CATEGORIES = [
+  { value: "cameras",              label: "カメラ" },
+  { value: "watches",              label: "腕時計" },
+  { value: "musical_instruments",  label: "楽器" },
+  { value: "video_games",          label: "ゲーム" },
+  { value: "toys",                 label: "おもちゃ・玩具" },
+  { value: "brand_goods",          label: "ブランド品" },
+  { value: "others",               label: "その他" },
+] as const;
+
+export type CategoryValue = typeof CATEGORIES[number]["value"];
+
 export interface HistoryRecord {
   id: string;
   timestamp: number;
   memo: string;
+  category: CategoryValue;
   mode: "standard" | "reverse";
   currency: string;
   sellingItemPrice: number;

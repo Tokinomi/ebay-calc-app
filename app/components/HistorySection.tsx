@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { toPng } from "html-to-image";
-import { HistoryRecord } from "../types";
+import { HistoryRecord, CATEGORIES } from "../types";
 import Receipt from "./Receipt";
 
 interface Props {
@@ -69,10 +69,15 @@ export default function HistorySection({ records, onDelete }: Props) {
             <div key={rec.id} className="bg-gray-800 rounded-2xl p-4">
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  {rec.memo && (
-                    <p className="text-sm font-medium text-white">{rec.memo}</p>
-                  )}
-                  <p className="text-xs text-gray-500">{date}</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-xs font-medium text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded-full">
+                      {CATEGORIES.find((c) => c.value === rec.category)?.label ?? "その他"}
+                    </span>
+                    {rec.memo && (
+                      <p className="text-sm font-medium text-white">{rec.memo}</p>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5">{date}</p>
                 </div>
                 <div className="flex gap-2">
                   <button

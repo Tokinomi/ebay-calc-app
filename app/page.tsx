@@ -5,7 +5,7 @@ import ExchangeRates from "./components/ExchangeRates";
 import InputSection from "./components/InputSection";
 import ResultSection from "./components/ResultSection";
 import HistorySection from "./components/HistorySection";
-import { ExchangeRates as ExchangeRatesType, CalcInputs, FeeSettings, CalcResult, ReverseCalcResult, HistoryRecord } from "./types";
+import { ExchangeRates as ExchangeRatesType, CalcInputs, FeeSettings, CalcResult, ReverseCalcResult, HistoryRecord, CATEGORIES, CategoryValue } from "./types";
 import { calculate, reverseCalculate, DEFAULT_FEES } from "./lib/calculate";
 
 const STORAGE_KEY = "ebay-calc-fees";
@@ -57,6 +57,7 @@ export default function Home() {
   const [result, setResult] = useState<CalcResult | null>(null);
   const [reverseResult, setReverseResult] = useState<ReverseCalcResult | null>(null);
   const [memo, setMemo] = useState("");
+  const [category, setCategory] = useState<CategoryValue>("others");
   const [history, setHistory] = useState<HistoryRecord[]>([]);
 
   useEffect(() => {
@@ -141,6 +142,7 @@ export default function Home() {
       id: Date.now().toString(),
       timestamp: Date.now(),
       memo,
+      category,
       mode,
       currency: inputs.currency,
       sellingItemPrice: activePrice,
@@ -152,7 +154,7 @@ export default function Home() {
       try { localStorage.setItem(HISTORY_KEY, JSON.stringify(next)); } catch { /* ignore */ }
       return next;
     });
-  }, [mode, result, reverseResult, inputs, memo, targetProfit]);
+  }, [mode, result, reverseResult, inputs, memo, category, targetProfit]);
 
   const handleDeleteHistory = useCallback((id: string) => {
     setHistory((prev) => {
@@ -196,6 +198,20 @@ export default function Home() {
           >
             逆算（目標利益）
           </button>
+        </div>
+
+        {/* Category Dropdown */}
+        <div className="mb-4">
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as CategoryValue)}
+            className="w-full bg-gray-800 text-white text-sm font-medium px-4 py-3 rounded-xl outline-none appearance-none cursor-pointer"
+            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", backgroundSize: "18px", paddingRight: "40px" }}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
         </div>
 
         <ExchangeRates
