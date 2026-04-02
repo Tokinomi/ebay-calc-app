@@ -8,7 +8,7 @@ export function calculate(
 ): CalcResult | null {
   if (!inputs.sellingItemPrice || !exchangeRate) return null;
 
-  const sellingItemPriceJPY = inputs.sellingItemPrice * exchangeRate;
+  const sellingItemPriceJPY = (inputs.sellingItemPrice - inputs.discount) * exchangeRate;
   const sellingShippingPriceJPY = inputs.sellingShippingPrice * exchangeRate;
   const sellingPriceJPY = sellingItemPriceJPY + sellingShippingPriceJPY;
 

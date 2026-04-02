@@ -20,6 +20,7 @@ export interface FeeSettings {
 export interface CalcInputs {
   purchasePrice: number;       // JPY
   sellingItemPrice: number;    // foreign currency (商品代)
+  discount: number;            // foreign currency (割引)
   sellingShippingPrice: number; // foreign currency (送料)
   shippingCost: number;        // JPY (送料コスト, default 3000)
   currency: string;

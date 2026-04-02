@@ -97,6 +97,13 @@ export default function InputSection({
             step={0.01}
           />
           <NumberInput
+            label={`割引（${inputs.currency}）`}
+            value={inputs.discount}
+            onChange={(v) => onInputChange("discount", v)}
+            prefix={currencySymbol}
+            step={0.01}
+          />
+          <NumberInput
             label={`販売価格 送料（${inputs.currency}）`}
             value={inputs.sellingShippingPrice}
             onChange={(v) => onInputChange("sellingShippingPrice", v)}

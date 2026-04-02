@@ -31,6 +31,7 @@ export default function Home() {
   const [inputs, setInputs] = useState<CalcInputs>({
     purchasePrice: 0,
     sellingItemPrice: 0,
+    discount: 0,
     sellingShippingPrice: 0,
     shippingCost: 3000,
     currency: "USD",
